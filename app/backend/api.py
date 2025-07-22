@@ -18,12 +18,17 @@ class RequestState(BaseModel):
 
 @app.post("/chat")
 def chat_endpoint(request:RequestState):
-
-    response = get_response_from_ai_agents(
-        request.model_name,
-        request.messages,
-        request.allow_search,
-        request.system_prompt
-    )
-
-    return {"response" : response}
+    try:
+        response = get_response_from_ai_agents(
+            request.model_name,
+            request.messages,
+            request.allow_search,
+            request.system_prompt
+        )
+        return {"response" : response}
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500 , 
+            detail=str(CustomException("Failed to get AI response" , error_detail=e))
+            )
