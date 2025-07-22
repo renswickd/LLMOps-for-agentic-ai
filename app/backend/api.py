@@ -18,6 +18,14 @@ class RequestState(BaseModel):
 
 @app.post("/chat")
 def chat_endpoint(request:RequestState):
+
+    if request.model_name not in settings.ALLOWED_MODEL_NAMES:
+
+        raise HTTPException(
+            status_code=400 , 
+            detail="Selected Model is out of provided lists"
+            )
+    
     try:
         response = get_response_from_ai_agents(
             request.model_name,
@@ -30,5 +38,5 @@ def chat_endpoint(request:RequestState):
     except Exception as e:
         raise HTTPException(
             status_code=500 , 
-            detail=str(CustomException("Failed to get AI response" , error_detail=e))
+            detail=str(CustomException("Failed in AI response generation: " , error_detail=e))
             )
