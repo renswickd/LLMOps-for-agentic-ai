@@ -18,9 +18,9 @@ class RequestState(BaseModel):
 
 @app.post("/chat")
 def chat_endpoint(request:RequestState):
-
+    logger.info(f"Received request with model: {request.model_name}, allow_search: {request.allow_search}")
     if request.model_name not in settings.ALLOWED_MODEL_NAMES:
-
+        logger.error(f"Model {request.model_name} is not in the allowed list: {settings.ALLOWED_MODEL_NAMES}")
         raise HTTPException(
             status_code=400 , 
             detail="Selected Model is out of provided lists"
@@ -33,9 +33,11 @@ def chat_endpoint(request:RequestState):
             request.allow_search,
             request.system_prompt
         )
+        logger.info(f"AI response generated successfully: {response}")
         return {"response" : response}
     
     except Exception as e:
+        logger.error(f"Error generating AI response: {e}")
         raise HTTPException(
             status_code=500 , 
             detail=str(CustomException("Failed in AI response generation: " , error_detail=e))
